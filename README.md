@@ -196,22 +196,26 @@ npm run dev
 
 ---
 
-## 🔐 Security
+## 🔐 Security & Reliability
 
 * API keys stored in environment variables
 * Backend handles sensitive operations
 * Firebase Authentication for secure access
 * Cloud Run IAM-based authentication
+* **API Rate Limiting:** Built-in `express-rate-limit` to prevent abuse and DDoS.
+* **Strict CORS & Payload Limits:** Explicitly secured cross-origin requests and capped JSON bodies (`10kb`) for enhanced stability.
 
 ---
 
 ## 🏆 Why This Project Stands Out
 
-* ⚡ Ultra-fast AI with Groq
-* ♿ Accessibility-first (voice + multilingual)
-* ☁️ Fully serverless architecture
-* 🇮🇳 India-focused civic impact
-* 🧩 Clean modular design
+* ⚡ **Ultra-fast AI** with Groq
+* ♿ **Accessibility-first** (voice + multilingual ARIA labels)
+* ☁️ **Fully serverless architecture**
+* 🇮🇳 **India-focused civic impact**
+* 🧩 **Clean modular design** with robust `PropTypes` and JSDoc validation.
+* 🚀 **Highly Optimized React:** Critical components use `React.memo` for maximum rendering efficiency.
+* 🧪 **Comprehensive Testing:** Frontend utilizes Vitest for component-level stability.
 
 ---
 

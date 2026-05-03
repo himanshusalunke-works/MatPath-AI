@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, memo } from 'react'
+import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next'
 import { GlobeAltIcon, ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline'
 
@@ -9,7 +10,14 @@ const LANGUAGES = [
   { code: 'ta', label: 'Tamil',   nativeLabel: 'தமிழ்',    flag: '🇮🇳' },
 ]
 
-export default function LanguagePicker({ className = '', variant = 'default' }) {
+/**
+ * LanguagePicker component allows users to select their preferred language.
+ * @param {Object} props
+ * @param {string} [props.className] - Optional additional CSS classes
+ * @param {string} [props.variant] - Optional variant for styling
+ * @returns {JSX.Element}
+ */
+const LanguagePicker = memo(function LanguagePicker({ className = '', variant = 'default' }) {
   const { i18n: i18nInst } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
@@ -88,6 +96,14 @@ export default function LanguagePicker({ className = '', variant = 'default' }) 
       )}
     </div>
   )
-}
+})
 
+LanguagePicker.propTypes = {
+  className: PropTypes.string,
+  variant: PropTypes.string,
+};
+
+LanguagePicker.displayName = 'LanguagePicker';
+
+export default LanguagePicker;
 export { LANGUAGES }

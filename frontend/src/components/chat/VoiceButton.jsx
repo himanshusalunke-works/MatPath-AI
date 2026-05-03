@@ -1,7 +1,17 @@
+import React, { memo } from 'react'
+import PropTypes from 'prop-types';
 import { useVoiceInput } from '../../hooks/useVoiceInput'
 import { MicrophoneIcon, StopIcon } from '@heroicons/react/24/solid'
 
-export default function VoiceButton({ onResult, language = 'en-IN', size = 'md' }) {
+/**
+ * VoiceButton component for initiating voice input.
+ * @param {Object} props
+ * @param {Function} props.onResult - Callback for when voice input is received
+ * @param {string} [props.language] - Language code for voice input
+ * @param {string} [props.size] - Size of the button
+ * @returns {JSX.Element}
+ */
+const VoiceButton = memo(function VoiceButton({ onResult, language = 'en-IN', size = 'md' }) {
   const { listening, start, stop, error } = useVoiceInput({ onResult, language })
 
   return (
@@ -32,4 +42,14 @@ export default function VoiceButton({ onResult, language = 'en-IN', size = 'md' 
       )}
     </div>
   )
-}
+})
+
+VoiceButton.propTypes = {
+  onResult: PropTypes.func.isRequired,
+  language: PropTypes.string,
+  size: PropTypes.string,
+};
+
+VoiceButton.displayName = 'VoiceButton';
+
+export default VoiceButton;
