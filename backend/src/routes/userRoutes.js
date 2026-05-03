@@ -6,7 +6,7 @@ const { verifyToken } = require('../middleware/authMiddleware');
 const logger = require('../config/logger');
 
 const profileSchema = Joi.object({
-    age: Joi.number().min(18).max(120).required(),
+    age: Joi.number().min(18).max(120).optional(),
     state: Joi.string().required(),
     district: Joi.string().required(),
     voterStatus: Joi.string().valid('yes', 'no').required(),
@@ -43,10 +43,22 @@ router.post('/profile', verifyToken, async (req, res) => {
             });
         }
 
-        const { age, state, district, voterStatus } = value;
+        let { age, dob } = value;
+
+        // Calculate age from dob if missing
+        if (!age && dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+        }
+
         await updateUserProfile(req.user.uid, {
             ...value,
-            age: parseInt(age),
+            age: parseInt(age) || 0,
             updatedAt: new Date().toISOString()
         });
         res.json({ message: 'Profile updated successfully' });

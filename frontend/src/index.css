@@ -194,6 +194,14 @@ button, a, [role="button"] {
 .step-current    { border-left: 4px solid #FF6B35; }
 .step-pending    { border-left: 4px solid #E5E7EB; }
 
+.glass-light {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
 /* ─── Mic button pulse ───────────────────────────────────── */
 .mic-pulse::before {
   content: '';

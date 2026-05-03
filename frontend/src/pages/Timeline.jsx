@@ -33,10 +33,23 @@ export default function TimelinePage() {
   const milestones = useMemo(() => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
+    
+    // Get user voter status from localStorage
+    const user = JSON.parse(localStorage.getItem('matpath_user') || '{}')
+    const isRegistered = user.profile?.voterStatus === 'yes'
+
     return rawMilestones.map(m => {
       const target = new Date(m.date)
       target.setHours(0, 0, 0, 0)
-      return { ...m, passed: target < today }
+      
+      let passed = target < today
+      
+      // If it's the registration milestone, it's only "passed" if user is registered
+      if (m.label.toLowerCase().includes('registration')) {
+        passed = isRegistered
+      }
+
+      return { ...m, passed }
     })
   }, [rawMilestones])
 
@@ -51,37 +64,41 @@ export default function TimelinePage() {
 
   return (
     <div className="tl-page">
-      {/* ── Hero header with gradient ── */}
-      <header className="tl-hero">
-        <div className="tl-hero__bg" aria-hidden="true" />
-        <div className="tl-hero__content">
-          <div className="tl-hero__icon-wrap">
-            <CalendarDaysIcon className="tl-hero__icon" aria-hidden="true" />
+      {/* ── Hero header with premium design ── */}
+      <section className="ed-hero ed-hero--timeline">
+        <div className="ed-hero__content">
+          <div className="ed-hero__info-wrap">
+            <div className="ed-hero__badge">
+              <CalendarDaysIcon className="w-5 h-5" />
+              <span>{t('election_roadmap', 'Election Roadmap')}</span>
+            </div>
+            <h1 className="ed-hero__title">
+              {t('timeline_title')}
+            </h1>
+            <p className="ed-hero__subtitle">
+              Track every critical milestone on your path to voting day.
+            </p>
           </div>
-          <div>
-            <h1 className="tl-hero__title">{t('timeline_title')}</h1>
-            <p className="tl-hero__subtitle">Track every milestone on your path to voting day</p>
-          </div>
-        </div>
 
-        {/* Stats row */}
-        <div className="tl-stats">
-          <div className="tl-stat">
-            <span className="tl-stat__value">{stats.done}</span>
-            <span className="tl-stat__label">Completed</span>
-          </div>
-          <div className="tl-stat__divider" aria-hidden="true" />
-          <div className="tl-stat">
-            <span className="tl-stat__value">{stats.total - stats.done}</span>
-            <span className="tl-stat__label">Remaining</span>
-          </div>
-          <div className="tl-stat__divider" aria-hidden="true" />
-          <div className="tl-stat">
-            <span className="tl-stat__value tl-stat__value--accent">{stats.daysToVote || '—'}</span>
-            <span className="tl-stat__label">To Vote</span>
+          {/* Stats row integrated into hero */}
+          <div className="ed-hero__stats-card glass-light">
+            <div className="ed-hero__stat-item">
+              <span className="ed-hero__stat-value">{stats.done}</span>
+              <span className="ed-hero__stat-label">Completed</span>
+            </div>
+            <div className="ed-hero__stat-divider" aria-hidden="true" />
+            <div className="ed-hero__stat-item">
+              <span className="ed-hero__stat-value">{stats.total - stats.done}</span>
+              <span className="ed-hero__stat-label">Remaining</span>
+            </div>
+            <div className="ed-hero__stat-divider" aria-hidden="true" />
+            <div className="ed-hero__stat-item">
+              <span className="ed-hero__stat-value" style={{ color: 'var(--primary)' }}>{stats.daysToVote || '—'}</span>
+              <span className="ed-hero__stat-label">Days To Vote</span>
+            </div>
           </div>
         </div>
-      </header>
+      </section>
 
       <div className="tl-main-grid">
         <div className="tl-main-content">

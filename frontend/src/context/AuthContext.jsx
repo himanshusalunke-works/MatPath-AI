@@ -11,6 +11,7 @@ import {
   onIdTokenChanged
 } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
+import api from '../services/api'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -48,6 +49,7 @@ export function AuthProvider({ children }) {
       } else {
         localStorage.removeItem('matpath_user')
         localStorage.removeItem('matpath_token')
+        sessionStorage.clear() // Clear all session data (chat history, session ID) on logout
       }
     })
 
@@ -68,8 +70,20 @@ export function AuthProvider({ children }) {
     return signInWithPopup(auth, googleProvider)
   }
 
-  const logout = () => {
-    return signOut(auth)
+  const logout = async () => {
+    try {
+      // Clear chat history on server before logging out if token exists
+      const token = localStorage.getItem('matpath_token')
+      if (token) {
+        await api.delete('/chat/history').catch(err => console.error('Failed to clear server chat history:', err))
+      }
+    } finally {
+      localStorage.removeItem('matpath_token')
+      localStorage.removeItem('matpath_user')
+      localStorage.removeItem('matpath_completed_steps')
+      sessionStorage.clear()
+      return signOut(auth)
+    }
   }
 
   const value = {

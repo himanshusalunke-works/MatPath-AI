@@ -34,9 +34,13 @@ export function useVoiceOutput() {
       }
       const languageCode = languageOverride || langMap[i18n.language] || 'en-IN'
 
+      const token = localStorage.getItem('matpath_token')
       const response = await fetch(`${API_BASE_URL}/voice/tts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ text, languageCode })
       })
 

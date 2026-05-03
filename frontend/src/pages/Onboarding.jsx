@@ -32,6 +32,16 @@ export default function Onboarding() {
   const [assemblyList, setAssemblyList] = useState([])
 
   useEffect(() => {
+    const userStr = localStorage.getItem('matpath_user')
+    if (userStr) {
+      const userData = JSON.parse(userStr)
+      if (userData.profile) {
+        navigate('/dashboard', { replace: true })
+      }
+    }
+  }, [navigate])
+
+  useEffect(() => {
     const fetchLocationData = async () => {
       try {
         const response = await api.get('/locations')
@@ -121,15 +131,36 @@ export default function Onboarding() {
     if (!validateStep()) return
     if (step < totalSteps) {
       setStep(step + 1)
-    } else {
+      } else {
       try {
+        // Calculate age from dob
+        const today = new Date()
+        const birthDate = new Date(form.dob)
+        let calculatedAge = today.getFullYear() - birthDate.getFullYear()
+        const m = today.getMonth() - birthDate.getMonth()
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          calculatedAge--
+        }
+
+        const submissionData = {
+          ...form,
+          age: calculatedAge
+        }
+
         // Save profile to backend
-        await api.post('/user/profile', form)
+        await api.post('/user/profile', submissionData)
         
         // Update local storage
         const user = JSON.parse(localStorage.getItem('matpath_user') || '{}')
-        user.profile = form
+        user.profile = submissionData
         localStorage.setItem('matpath_user', JSON.stringify(user))
+
+        // Set initial completed steps based on registration status
+        if (form.voterStatus === 'no') {
+          localStorage.setItem('matpath_completed_steps', JSON.stringify([]))
+        } else {
+          localStorage.setItem('matpath_completed_steps', JSON.stringify([1]))
+        }
         
         navigate('/dashboard')
       } catch (err) {

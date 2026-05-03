@@ -24,10 +24,11 @@ const queryClient = new QueryClient({
 function AppShell({ children }) {
   const { user, logout } = useAuth()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const location = useLocation()
+  const isChat = location.pathname === '/chat'
 
   return (
     <div className="app-shell">
-      <a href="#main-content" className="skip-link">Skip to main content</a>
 
       {/* Sidebar — lg+ */}
       <SidebarNav 
@@ -40,7 +41,7 @@ function AppShell({ children }) {
         {/* Top Header Bar — always visible */}
         <TopBar user={user} onLogout={logout} />
 
-        <main id="main-content" className="app-shell__main">
+        <main id="main-content" className={`app-shell__main ${isChat ? 'app-shell__main--chat' : ''}`}>
           {children}
         </main>
       </div>
@@ -53,8 +54,10 @@ function AppShell({ children }) {
   )
 }
 
+import { Outlet } from 'react-router-dom'
+
 /** Route guard — redirects to /login if not authenticated */
-function ProtectedRoute({ children }) {
+function ProtectedRoute() {
   const { user, loading } = useAuth()
   
   if (loading) return (
@@ -64,7 +67,7 @@ function ProtectedRoute({ children }) {
   )
   
   if (!user) return <Navigate to="/login" replace />
-  return <AppShell>{children}</AppShell>
+  return <AppShell><Outlet /></AppShell>
 }
 
 function AppRoutes() {
@@ -83,11 +86,13 @@ function AppRoutes() {
       <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/login" replace />} />
 
       {/* Protected */}
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-      <Route path="/timeline" element={<ProtectedRoute><TimelinePage /></ProtectedRoute>} />
-      <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
-      <Route path="/education" element={<ProtectedRoute><Education /></ProtectedRoute>} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/timeline" element={<TimelinePage />} />
+        <Route path="/map" element={<MapPage />} />
+        <Route path="/education" element={<Education />} />
+      </Route>
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

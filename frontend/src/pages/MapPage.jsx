@@ -1,8 +1,10 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api'
+import { GoogleMap, useJsApiLoader, InfoWindow } from '@react-google-maps/api'
 import { MapPinIcon, MagnifyingGlassIcon, ArrowRightIcon, GlobeAsiaAustraliaIcon } from '@heroicons/react/24/outline'
 import api from '../services/api'
+
+const libraries = ['marker']
 
 const containerStyle = {
   width: '100%',
@@ -16,6 +18,7 @@ const defaultCenter = {
 }
 
 const mapOptions = {
+  mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
   disableDefaultUI: false,
   zoomControl: true,
   streetViewControl: false,
@@ -43,6 +46,48 @@ const mapOptions = {
   ]
 }
 
+const AdvancedMarker = ({ map, position, onClick, iconUrl, title }) => {
+  const markerRef = useRef(null)
+
+  useEffect(() => {
+    if (!map || !position || !window.google?.maps?.marker?.AdvancedMarkerElement) return
+
+    let content = undefined
+    if (iconUrl) {
+      const img = document.createElement('img')
+      img.src = typeof iconUrl === 'string' ? iconUrl : iconUrl.url
+      img.style.width = '32px'
+      img.style.height = '32px'
+      content = img
+    }
+
+    const marker = new window.google.maps.marker.AdvancedMarkerElement({
+      map,
+      position,
+      title,
+      content
+    })
+
+    if (onClick) {
+      const listener = marker.addListener('click', onClick)
+      return () => {
+        listener.remove()
+        marker.map = null
+      }
+    }
+
+    markerRef.current = marker
+
+    return () => {
+      if (markerRef.current) {
+        markerRef.current.map = null
+      }
+    }
+  }, [map, position, iconUrl, title, onClick])
+
+  return null
+}
+
 export default function MapPage() {
   const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState('')
@@ -52,7 +97,8 @@ export default function MapPage() {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries
   })
 
   const [assignedBooth, setAssignedBooth] = useState(null)
@@ -114,14 +160,22 @@ export default function MapPage() {
 
   return (
     <div className="map-page animate-fade-in">
-      <header className="map-header">
-        <h1 className="map-header__title">
-          <span aria-hidden="true">🗺️</span> {t('find_booth')}
-        </h1>
-        <p className="map-header__subtitle">
-          {t('map_subtitle', 'Real-time polling station locator and queue status')}
-        </p>
-      </header>
+      <section className="ed-hero ed-hero--map">
+        <div className="ed-hero__content">
+          <div className="ed-hero__info-wrap">
+            <div className="ed-hero__badge">
+              <MapPinIcon className="w-5 h-5" />
+              <span>{t('booth_locator', 'Booth Locator')}</span>
+            </div>
+            <h1 className="ed-hero__title">
+              {t('find_booth')}
+            </h1>
+            <p className="ed-hero__subtitle">
+              {t('map_subtitle', 'Real-time polling station locator and queue status updates.')}
+            </p>
+          </div>
+        </div>
+      </section>
 
 
       <div className="map-main-container">
@@ -135,20 +189,22 @@ export default function MapPage() {
               options={mapOptions}
             >
               {assignedBooth && (
-                <Marker
+                <AdvancedMarker
+                  map={map}
                   key={assignedBooth.id}
                   position={{ lat: assignedBooth.lat, lng: assignedBooth.lng }}
                   onClick={() => setSelectedBooth(assignedBooth)}
-                  icon={{
-                    url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                  }}
+                  iconUrl="https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                  title={assignedBooth.name}
                 />
               )}
 
               {userLocation && (
-                <Marker 
+                <AdvancedMarker 
+                  map={map}
                   position={userLocation}
-                  icon={{ url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' }}
+                  iconUrl="https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                  title="Your Location"
                 />
               )}
 

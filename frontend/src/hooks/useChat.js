@@ -15,29 +15,46 @@ function getOrCreateSessionId() {
 }
 
 export function useChatHistory() {
-  const sessionId = getOrCreateSessionId()
   return useQuery({
-    queryKey: ['chat-history', sessionId],
+    queryKey: ['chat-history'],
     queryFn: async () => {
-      const res = await api.get('/chat/history', { params: { sessionId, limit: 50 } })
-      return res.data.messages || []
+      const res = await api.get('/chat/history')
+      return res.data || []
     },
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000, // 5 mins
   })
 }
 
+const MESSAGES_KEY = 'matpath_chat_messages'
+
 export function useChat() {
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(MESSAGES_KEY)
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
   const [streaming, setStreaming] = useState(false)
+
+  // Auto-save to sessionStorage
+  const updateMessages = useCallback((newMessages) => {
+    setMessages((prev) => {
+      const msgs = typeof newMessages === 'function' ? newMessages(prev) : newMessages;
+      sessionStorage.setItem(MESSAGES_KEY, JSON.stringify(msgs));
+      return msgs;
+    });
+  }, []);
 
   const sendMessage = useCallback(async (text, language = 'en', userData = {}) => {
     const sessionId = getOrCreateSessionId()
     const userMsg = { id: Date.now(), role: 'user', content: text, timestamp: new Date().toISOString() }
-    setMessages((prev) => [...prev, userMsg])
+    updateMessages((prev) => [...prev, userMsg])
 
     // Placeholder AI message for streaming
     const aiMsgId = Date.now() + 1
-    setMessages((prev) => [...prev, { id: aiMsgId, role: 'assistant', content: '', timestamp: new Date().toISOString(), loading: true }])
+    updateMessages((prev) => [...prev, { id: aiMsgId, role: 'assistant', content: '', timestamp: new Date().toISOString(), loading: true }])
     setStreaming(true)
 
     try {
@@ -72,7 +89,7 @@ export function useChat() {
             try {
               const parsed = JSON.parse(data)
               accumulated += parsed.text || ''
-              setMessages((prev) =>
+              updateMessages((prev) =>
                 prev.map((m) => (m.id === aiMsgId ? { ...m, content: accumulated, loading: false } : m))
               )
             } catch { /* ignore parse errors */ }
@@ -82,12 +99,12 @@ export function useChat() {
         // Non-streaming JSON
         const data = await response.json()
         const responseText = data.response || 'I could not process your request.'
-        setMessages((prev) =>
+        updateMessages((prev) =>
           prev.map((m) => (m.id === aiMsgId ? { ...m, content: responseText, loading: false } : m))
         )
       }
     } catch {
-      setMessages((prev) =>
+      updateMessages((prev) =>
         prev.map((m) =>
           m.id === aiMsgId
             ? { ...m, content: 'Sorry, I could not connect to the server. Please try again.', loading: false, error: true }
@@ -99,5 +116,16 @@ export function useChat() {
     }
   }, [])
 
-  return { messages, setMessages, sendMessage, streaming }
+  const clearChat = useCallback(async () => {
+    try {
+      await api.delete('/chat/history')
+    } catch (err) {
+      console.error('Failed to clear chat history on server:', err)
+    } finally {
+      updateMessages([])
+      sessionStorage.removeItem(SESSION_KEY)
+    }
+  }, [updateMessages])
+
+  return { messages, setMessages: updateMessages, sendMessage, clearChat, streaming }
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../context/AuthContext'
@@ -70,6 +71,13 @@ export function BottomNav() {
 export function TopBar({ user, onLogout }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [showNotifications, setShowNotifications] = useState(false)
+
+  const notifications = [
+    { id: 1, text: 'Register by May 15th for the upcoming phase.', time: '2h ago', urgent: true },
+    { id: 2, text: 'Check your updated polling booth on the map.', time: '5h ago', urgent: false },
+    { id: 3, text: 'New educational guide: "How EVMs work" is now live.', time: '1d ago', urgent: false },
+  ]
 
   return (
     <header className="tb" aria-label="Top header">
@@ -88,10 +96,42 @@ export function TopBar({ user, onLogout }) {
           <LanguagePicker />
 
           {/* Notifications */}
-          <button className="tb__btn tb__btn--notify" aria-label="Notifications">
-            <BellIcon className="tb__btn-icon" />
-            <span className="tb__badge" aria-hidden="true" />
-          </button>
+          <div className="relative">
+            <button 
+              className={`tb__btn tb__btn--notify ${showNotifications ? 'tb__btn--active' : ''}`} 
+              aria-label="Notifications"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              <BellIcon className="tb__btn-icon" />
+              <span className="tb__badge" aria-hidden="true" />
+            </button>
+
+            {showNotifications && (
+              <div className="tb__notify-dropdown animate-fade-in-up">
+                <div className="tb__notify-header">
+                  <h3 className="text-sm font-bold">Notifications</h3>
+                  <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">New</span>
+                </div>
+                <div className="tb__notify-list">
+                  {notifications.map(n => (
+                    <div key={n.id} className="tb__notify-item">
+                      <div className={`tb__notify-dot ${n.urgent ? 'bg-red-500' : 'bg-primary'}`} />
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-200 leading-relaxed">{n.text}</p>
+                        <span className="text-[10px] text-gray-500 mt-1 block">{n.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  className="tb__notify-footer"
+                  onClick={() => setShowNotifications(false)}
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* User Section */}
           {user && (

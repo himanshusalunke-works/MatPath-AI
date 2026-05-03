@@ -51,8 +51,12 @@ export function useVoiceInput({ onResult } = {}) {
         formData.append('languageCode', languageCode)
 
         try {
+          const token = localStorage.getItem('matpath_token')
           const response = await fetch(`${API_BASE_URL}/voice/stt`, {
             method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
             body: formData
           })
 

@@ -45,6 +45,36 @@ const updateWorkflow = async (uid, data) => {
     }
 };
 
+const getChatHistory = async (uid) => {
+    try {
+        const doc = await db.collection(CHATS_COL).doc(uid).get();
+        return doc.exists ? doc.data().messages || [] : [];
+    } catch (error) {
+        logger.error('Firestore getChatHistory error:', error);
+        throw error;
+    }
+};
+
+const saveChatMessage = async (uid, message) => {
+    try {
+        const chatRef = db.collection(CHATS_COL).doc(uid);
+        const doc = await chatRef.get();
+        
+        if (!doc.exists) {
+            await chatRef.set({ messages: [message] });
+        } else {
+            const currentMessages = doc.data().messages || [];
+            // Keep only last 50 messages to prevent document size bloat
+            const updatedMessages = [...currentMessages, message].slice(-50);
+            await chatRef.update({ messages: updatedMessages });
+        }
+        return true;
+    } catch (error) {
+        logger.error('Firestore saveChatMessage error:', error);
+        throw error;
+    }
+};
+
 /** Seeding sample data for demonstration */
 const seedSampleData = async () => {
     try {
@@ -98,8 +128,8 @@ const seedSampleData = async () => {
         // 4. Seed Sample AI Chat History
         await db.collection(CHATS_COL).doc(uid).set({
             messages: [
-                { role: 'user', content: 'How do I find my booth?' },
-                { role: 'assistant', content: 'You can find your polling booth by checking your EPIC number on the ECI portal or using our map tool!' }
+                { role: 'user', content: 'How do I find my booth?', timestamp: new Date().toISOString() },
+                { role: 'assistant', content: 'You can find your polling booth by checking your EPIC number on the ECI portal or using our map tool!', timestamp: new Date().toISOString() }
             ]
         });
 
@@ -111,10 +141,23 @@ const seedSampleData = async () => {
     }
 };
 
+const clearChatHistory = async (uid) => {
+    try {
+        await db.collection(CHATS_COL).doc(uid).delete();
+        return true;
+    } catch (error) {
+        logger.error('Firestore clearChatHistory error:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getUserProfile,
     updateUserProfile,
     getWorkflow,
     updateWorkflow,
+    getChatHistory,
+    saveChatMessage,
+    clearChatHistory,
     seedSampleData
 };

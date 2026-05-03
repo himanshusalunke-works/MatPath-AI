@@ -31,7 +31,6 @@ It transforms complex voting procedures into a **personalized, interactive journ
 ## ✨ Features
 
 ### 🏆 Personalized Voter Journey
-
 * Step-by-step guidance based on user profile
 * Real-time progress tracking
 * Smart readiness indicators
@@ -39,23 +38,27 @@ It transforms complex voting procedures into a **personalized, interactive journ
 ---
 
 ### 🎙️ Multilingual AI Voice Assistant
-
 * Supports Hindi, Marathi, Tamil, and English
 * Natural language interaction
-* Instant voice + text responses
+* **Native Language Quick-Prompts**: Get started instantly with localized demo questions
+
+---
+
+### 🛡️ Privacy & Session Control
+* **Manual Reset**: Clear history anytime via the chat menu
+* **Auto-Purge**: Automatic history deletion on logout for maximum privacy
+* Secure session-based Firestore synchronization
 
 ---
 
 ### 📍 Polling Booth Finder
-
-* Interactive map integration
-* Locate nearest polling station
-* Get directions instantly
+* Interactive map integration with real-time location seeding
+* Locate nearest polling station using EPIC ID or location
+* Get directions via Google Maps API
 
 ---
 
 ### 📅 Interactive Election Timeline
-
 * Personalized election schedule
 * Important deadlines & reminders
 * Location-based updates
@@ -63,15 +66,13 @@ It transforms complex voting procedures into a **personalized, interactive journ
 ---
 
 ### 📚 Guided Learning Module
-
 * Step-by-step explanation of voting process
-* Audio-assisted learning
-* Beginner-friendly UX
+* **Interactive CTA**: Premium "Ready to Vote" card with dynamic animations
+* Audio-assisted learning in 4 languages
 
 ---
 
 ### 🌍 Full Internationalization (i18n)
-
 * Fully localized interface
 * Multi-language support
 * Accessibility-first design
@@ -82,7 +83,7 @@ It transforms complex voting procedures into a **personalized, interactive journ
 
 MatPath AI is built using a scalable and secure Google Cloud ecosystem:
 
-* 🔐 Firebase Authentication → Secure login (Google + Email)
+* 🔐 Firebase Authentication → Secure login (Google + Phone)
 * 🗄️ Cloud Firestore → Real-time database
 * 🗺️ Google Maps Platform → Polling booth & navigation
 * 🎤 Speech-to-Text → Voice input
@@ -93,16 +94,16 @@ MatPath AI is built using a scalable and secure Google Cloud ecosystem:
 
 ## 🤖 AI Stack
 
-* ⚡ Groq API (LLaMA / Mixtral)
+* ⚡ Groq API (LLaMA 3 70B)
 * Real-time conversational AI
-* Multilingual responses
+* Multilingual system prompt guardrails
+* Session-aware context memory
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-
 * React 19
 * Tailwind CSS v4
 * Vite
@@ -110,13 +111,11 @@ MatPath AI is built using a scalable and secure Google Cloud ecosystem:
 * i18next
 
 ### Backend
-
-* Node.js
-* Express
+* Node.js / Express
 * Groq SDK
+* Firebase Admin SDK
 
 ### DevOps
-
 * Docker
 * Google Cloud Run
 * GitHub Actions
@@ -125,11 +124,11 @@ MatPath AI is built using a scalable and secure Google Cloud ecosystem:
 
 ## 🌐 Live Demo
 
-* 🔗 Frontend
-  [https://mathpath-ai-frontend-898253091340.us-central1.run.app](https://mathpath-ai-frontend-898253091340.us-central1.run.app)
+* 🔗 **Frontend**
+  [https://matpath-frontend-898253091340.us-central1.run.app](https://matpath-frontend-898253091340.us-central1.run.app)
 
-* 🔗 Backend
-  [https://mathpath-ai-backend-898253091340.us-central1.run.app](https://mathpath-ai-backend-898253091340.us-central1.run.app)
+* 🔗 **Backend**
+  [https://matpath-backend-898253091340.us-central1.run.app](https://matpath-backend-898253091340.us-central1.run.app)
 
 ---
 
