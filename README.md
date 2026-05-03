@@ -1,7 +1,3 @@
-Here’s your **fully updated, clean, and hackathon-ready README** with the correct naming:
-
----
-
 # 🗳️ MatPath AI (मत Path AI)
 
 ### *Empowering Every Indian Voter through AI-Driven Guidance*
@@ -216,12 +212,6 @@ npm run dev
 * 🧩 **Clean modular design** with robust `PropTypes` and JSDoc validation.
 * 🚀 **Highly Optimized React:** Critical components use `React.memo` for maximum rendering efficiency.
 * 🧪 **Comprehensive Testing:** Frontend utilizes Vitest for component-level stability.
-
----
-
-## 🎯 One-Line Pitch
-
-> *MatPath AI (मत Path AI) guides every Indian citizen through the election process with clarity, speed, and accessibility using AI and Google Cloud.*
 
 ---
 
