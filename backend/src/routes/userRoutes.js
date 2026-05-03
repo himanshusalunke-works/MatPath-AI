@@ -1,7 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const Joi = require('joi');
 const { getUserProfile, updateUserProfile } = require('../services/firestoreService');
 const { verifyToken } = require('../middleware/authMiddleware');
+const logger = require('../config/logger');
+
+const profileSchema = Joi.object({
+    age: Joi.number().min(18).max(120).required(),
+    state: Joi.string().required(),
+    district: Joi.string().required(),
+    voterStatus: Joi.string().valid('yes', 'no').required(),
+    dob: Joi.string().isoDate().optional(),
+    epicId: Joi.string().min(10).max(20).optional().allow(''),
+    parliamentaryConstituency: Joi.string().optional().allow(''),
+    assemblyConstituency: Joi.string().optional().allow('')
+});
 
 router.get('/profile', verifyToken, async (req, res) => {
     try {
@@ -15,14 +28,25 @@ router.get('/profile', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * Updates the user's profile information.
+ * Validates the request body against the profileSchema.
+ */
 router.post('/profile', verifyToken, async (req, res) => {
     try {
-        const { age, state, district, voterStatus } = req.body;
+        const { error, value } = profileSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
+        
+        if (error) {
+            return res.status(400).json({ 
+                error: 'Validation failed', 
+                details: error.details.map(d => d.message) 
+            });
+        }
+
+        const { age, state, district, voterStatus } = value;
         await updateUserProfile(req.user.uid, {
+            ...value,
             age: parseInt(age),
-            state,
-            district,
-            voterStatus,
             updatedAt: new Date().toISOString()
         });
         res.json({ message: 'Profile updated successfully' });

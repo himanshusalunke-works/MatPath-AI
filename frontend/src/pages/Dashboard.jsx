@@ -127,7 +127,7 @@ export default function Dashboard() {
           {/* Readiness ring */}
           <div className="db-readiness">
             <div className="db-readiness__ring">
-              <svg viewBox="0 0 80 80" className="db-readiness__svg">
+              <svg viewBox="0 0 80 80" className="db-readiness__svg" role="progressbar" aria-valuenow={progress} aria-valuemin="0" aria-valuemax="100" aria-label="Election readiness progress">
                 <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
                 <circle
                   cx="40" cy="40" r="34"
@@ -253,6 +253,7 @@ export default function Dashboard() {
                             else if (step.link) window.open(step.link, '_blank')
                           }}
                           className="db-step__action-btn"
+                          aria-label={`${step.actionText} for ${step.title}`}
                         >
                           {step.actionText}
                           <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" />
@@ -263,6 +264,7 @@ export default function Dashboard() {
                         <button
                           onClick={() => handleToggleStep(step.id)}
                           className="db-step__complete-btn"
+                          aria-label={`Mark ${step.title} as complete`}
                         >
                           <CheckCircleSolid className="h-4 w-4" />
                           {t('mark_complete')}
